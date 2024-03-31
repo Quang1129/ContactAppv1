@@ -14,13 +14,13 @@ import java.util.ArrayList;
 
 
 // making adapter
-public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder> {
+public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder> implements Filterable {
 
     private ArrayList<Contact> contactList;
-
+    private ArrayList<Contact> contactListOld;
     public ContactsAdapter(ArrayList<Contact> contactList) {
         this.contactList = contactList;
-
+        this.contactListOld = contactList;
 
     }
     // create string arraylist of contact list
@@ -41,7 +41,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
         holder.tvName.setText(contactList.get(position).getName());
-
+        holder.tvPhone.setText(contactList.get(position).getMobile());
+        holder.tvEmail.setText(contactList.get(position).getEmail());
     }
 
     @Override
@@ -53,16 +54,47 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView tvName;
 
-
+        public TextView tvPhone;
+        public TextView tvEmail;
 
         public ViewHolder(View view) {
             super(view);
 
             tvName = (TextView) view.findViewById(R.id.tv_name);
-
+            tvPhone = (TextView) view.findViewById(R.id.tv_phone_number);
+            tvEmail = (TextView) view.findViewById(R.id.tv_email);
         }
     }
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                String strSearch = charSequence.toString();
+                if (strSearch.isEmpty()) {
+                    contactList = contactListOld;
+                } else {
+                    ArrayList<Contact> resultList = new ArrayList<Contact>();
 
+                    for (Contact contact : contactListOld) {
+                        if (contact.getName().toLowerCase().contains(strSearch.toLowerCase())) {
+                            resultList.add(contact);
+                        }
+                    }
+                    contactList = resultList;
+                }
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = contactList;
 
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                contactList = (ArrayList<Contact>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
+    }
 
 }

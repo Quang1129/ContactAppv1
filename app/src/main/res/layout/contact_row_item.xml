@@ -17,18 +17,33 @@
         android:src="@drawable/baseline_person_24"
         android:layout_width="50dp"
         android:layout_height="50dp"
-
+        android:layout_margin="15dp"
         ></ImageView>
-
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
         <TextView
             android:text="Name"
             android:layout_gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tv_name"></TextView>
-
+        <TextView
+            android:text="Number"
+            android:layout_gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_phone_number"></TextView>
+            <TextView
+                android:text="Email"
+                android:layout_gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_email"></TextView>
 
         </LinearLayout>
-
+    </LinearLayout>
 
 </androidx.cardview.widget.CardView>

@@ -49,9 +49,46 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View viewRoot = binding.getRoot();
         setContentView(viewRoot);
+        FloatingActionButton btnAdd = findViewById(R.id.btn_add);
+
+        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            // There are no request codes
+                            Intent data = result.getData();
+                            Contact c = (Contact) data.getSerializableExtra("contact");
+                            Log.d("DEBUG1", c.mobile +' '+ c.name);
+
+//                            AsyncTask.execute(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    appDatabase = AppDatabase.getInstance(getApplicationContext());
+//                                    contactDao = appDatabase.contactDao();
+//
+//                                    contactDao.insert(c);
+//                                }
+//                            });
+
+                            contactList.add(c);
+                            contactsAdapter.notifyDataSetChanged();
 
 
+                        }
+                    }
+                });
 
+        // You can do the assignment inside onAttach or onCreate, i.e, before the activity is displayed
+
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, NewContactActivity.class);
+                activityResultLauncher.launch(intent);
+            }
+        });
 
 // have to set layout manager
         binding.rvContacts.setLayoutManager(new LinearLayoutManager(this));
@@ -61,25 +98,50 @@ public class MainActivity extends AppCompatActivity {
         contactsAdapter = new ContactsAdapter(contactList);
 
         binding.rvContacts.setAdapter(contactsAdapter);
-        contactList.add(new Contact("Nguyen Van A", "012334556" , "A@gmail.com"));
-        contactList.add(new Contact("Ngueyn Van B", "123455688", "B@gmail.com"));
-        contactsAdapter.notifyDataSetChanged();
+
+        //always notify adapter that data has been changed when you modify the data
+
+        appDatabase = AppDatabase.getInstance(getApplicationContext());
+        contactDao = appDatabase.contactDao();
+
+
 
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                appDatabase = AppDatabase.getInstance(getApplicationContext());
-                contactDao = appDatabase.contactDao();
-                contactDao.insert(new Contact("Nguyen Van A", "012334556" , "A@gmail.com"));
 
-
+                List<Contact> contacts1=contactDao.getAll();
+                for (Contact c: contacts1){
+                    contactList.add(c);
+                }
+                contactsAdapter.notifyDataSetChanged();
             }
         });
-
-
-
-
-
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+
+        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+//        searchView = findViewById(R.id.action_search);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                contactsAdapter.getFilter().filter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                contactsAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+        return true;
+    }
 }

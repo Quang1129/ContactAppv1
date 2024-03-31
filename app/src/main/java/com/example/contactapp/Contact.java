@@ -7,23 +7,26 @@ import androidx.room.PrimaryKey;
 import java.io.Serializable;
 
 @Entity
-public class Contact {
+public class Contact implements Serializable {
+
 
     @PrimaryKey(autoGenerate = true)
     private int id;
-    @ColumnInfo
-    private String name;
-    public int getId(){
+
+    public int getId() {
         return id;
     }
-    public void setId(int id){
+
+    public void setId(int id) {
         this.id = id;
     }
 
     @ColumnInfo
-    private String mobile;
+    public String name;
     @ColumnInfo
-    private String email;
+    public String mobile;
+    @ColumnInfo
+    public String email;
 
     public Contact(String name, String mobile, String email) {
         this.name = name;
